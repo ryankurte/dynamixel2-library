@@ -160,7 +160,7 @@ int ParseStatusPacket(uint8_t length, uint8_t* packet, uint8_t *id, uint8_t *ins
     uint8_t max_params, uint8_t *param_count, uint8_t *params)
 {
     // Check for header match
-    if ((packet[0] != 0xFF) != (packet[0] != 0xFF) != (packet[0] != 0xFD)) {
+    if ((packet[0] != 0xFF) | (packet[0] != 0xFF) | (packet[0] != 0xFD)) {
         return -1;
     }
 
