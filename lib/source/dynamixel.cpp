@@ -20,67 +20,6 @@
 #define MINIMUM_LENGTH  11
 
 
-extern "C" {
-
-    /**
-     * Dynamixel base packet structure
-     * This depends on the architecture being little endian.
-     */
-    struct dynamixel_header_s {
-        uint8_t header[3];                  //!< Always 0xFF, 0xFF, 0xFD for Protocol 2.0
-        uint8_t reserved;
-        uint8_t id;                         //!< Dynamixel ID, 0xFE for broadcast
-        uint16_t len;                       //!< Length following packet id field
-        uint8_t instruction;                //!< Instruction to effect
-    } __attribute((packed));
-
-    typedef struct dynamixel_header_s dynamixel_header_t;
-
-    struct dynamixel_instruction_ping_s {
-    } __attribute((packed));
-
-    struct dynamixel_instruction_s {
-        union {
-            struct dynamixel_instruction_ping_s ping;
-
-        };
-    } __attribute((packed));
-
-    struct dynamixel_status_ping_s {
-        uint16_t model;
-        uint8_t firmware;
-    } __attribute((packed));
-
-    struct dynamixel_status_s {
-        uint8_t error;
-        union {
-            struct dynamixel_status_ping_s ping;
-
-        };
-    } __attribute((packed));
-
-    struct dynamixel_message_s {
-        struct dynamixel_header_s;
-        union {
-            struct dynamixel_instruction_s instruction;
-            struct dynamixel_status_s status;
-        };
-        uint16_t crc;
-    };
-
-    enum {
-        PKT_INDEX_HEADER0 = 0,
-        PKT_INDEX_HEADER1 = 1,
-        PKT_INDEX_HEADER2 = 2,
-        PKT_INDEX_RESERVED = 3,
-        PKT_INDEX_ID = 4,
-        PKT_INDEX_LENGTH_L = 5,
-        PKT_INDEX_LENGTH_H = 6,
-        PKT_INDEX_INSTRUCTION = 7,
-    } pkt_index_e;
-
-}
-
 namespace Dynamixel
 {
 
@@ -118,12 +57,29 @@ uint16_t ComputeCRC(uint16_t size, uint8_t *data)
     return out;
 }
 
+int Manager::BuildWrite(uint8_t id, uint16_t addr, uint8_t data_count, uint8_t* data,
+                        uint8_t max_len, uint8_t* length, uint8_t* packet)
+{
+
+    uint8_t packed_data[data_count + 2];
+
+    // Pack data with reg address (LSB first)
+    packed_data[0] = (addr >> 8) & 0xFF;
+    packed_data[1] = addr & 0xFF;
+
+    for (int i = 0; i < data_count; i++) {
+        packed_data[i + 2] = data[i];
+    }
+
+    return Manager::BuildPacket(id, DX_INSTR_WRITE, length + 2, packed_data, max_len, length, packet);
+}
+
 int Manager::BuildPacket(uint8_t id, uint8_t instruction, uint8_t param_count, uint8_t *params,
-    uint8_t max_len, uint8_t* length, uint8_t* packet)
+                         uint8_t max_len, uint8_t* length, uint8_t* packet)
 {
 
     // Check we have enough space to build the packet
-    if((PACKET_OVERHEAD + param_count) > max_len) {
+    if ((PACKET_OVERHEAD + param_count) > max_len) {
         return ERRNUM_DATA_LENGTH;
     }
 
@@ -156,8 +112,8 @@ int Manager::BuildPacket(uint8_t id, uint8_t instruction, uint8_t param_count, u
     return 0;
 }
 
-int ParseStatusPacket(uint8_t length, uint8_t* packet, uint8_t *id, uint8_t *instruction, 
-    uint8_t max_params, uint8_t *param_count, uint8_t *params)
+int ParseStatusPacket(uint8_t length, uint8_t* packet, uint8_t *id, uint8_t *instruction,
+                      uint8_t max_params, uint8_t *param_count, uint8_t *params)
 {
     // Check for header match
     if ((packet[0] != 0xFF) | (packet[0] != 0xFF) | (packet[0] != 0xFD)) {
