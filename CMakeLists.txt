@@ -19,7 +19,6 @@ set(CMAKE_BUILD_TYPE DEBUG)
 ##### Modules #####
 
 include(${PROJECT_SOURCE_DIR}/lib/dynamixel2.cmake)
-add_subdirectory(${PROJECT_SOURCE_DIR}/modules/googletest/googlemock)
 
 ##### Files #####
 
@@ -40,7 +39,7 @@ include_directories(${CMAKE_BINARY_DIR})
 
 # Generate executable and link
 add_executable(${TARGET} ${TEST_SOURCES})
-target_link_libraries(${TARGET} ${OPTIONAL_LIBS} pthread gtest gmock)
+target_link_libraries(${TARGET} ${OPTIONAL_LIBS} pthread gmock)
 add_dependencies(${TARGET} version)
 
 ##### Testing #####
