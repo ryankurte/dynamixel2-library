@@ -5,36 +5,65 @@
 #include "dynamixel.hpp"
 
 // The fixture for testing class Foo.
-class DynamixelTest : public ::testing::Test {
- protected:
+class DynamixelTest : public ::testing::Test
+{
+protected:
   // You can remove any or all of the following functions if its body
   // is empty.
 
-  DynamixelTest() {
-    // You can do set-up work for each test here.
+  DynamixelTest()
+  {
+
   }
 
-  virtual ~DynamixelTest() {
-    // You can do clean-up work that doesn't throw exceptions here.
+  virtual ~DynamixelTest()
+  {
+
   }
 
-  // If the constructor and destructor are not enough for setting up
-  // and cleaning up each test, you can define the following methods:
-
-  virtual void SetUp() {
-    // Code here will be called immediately after the constructor (right
-    // before each test).
-  }
-
-  virtual void TearDown() {
-    // Code here will be called immediately after each test (right
-    // before the destructor).
-  }
-
-  // Objects declared here can be used by all tests in the test case for Foo.
+  Dynamixel::Manager dmx = Dynamixel::Manager(NULL);;
 };
 
-TEST_F(DynamixelTest, FakeTest) { 
-    // Expected, actual
-    EXPECT_EQ(0, 0);
+TEST_F(DynamixelTest, HeaderSize) {
+  EXPECT_EQ(7, HEADER_SIZE);
+  EXPECT_EQ(9, PACKET_OVERHEAD);
 }
+
+
+
+
+TEST_F(DynamixelTest, FakeTest)
+{
+  uint8_t data[64];
+  uint8_t length;
+
+  int id = 1;
+
+  uint8_t write_data[2] = {0x00, 0x01};
+
+  dmx.BuildWrite(1, Dynamixel::DX_RAM_LED, sizeof(write_data), write_data,
+                 sizeof(data), &length, data);
+
+  EXPECT_EQ(14, length);
+
+  EXPECT_EQ(0xff, data[0]);   // Header[0]
+  EXPECT_EQ(0xff, data[1]);   // Header[1]
+  EXPECT_EQ(0xfd, data[2]);   // Header[2]
+  EXPECT_EQ(0x00, data[3]);   // Reserved
+  EXPECT_EQ(id,   data[4]);   // Device ID
+  EXPECT_EQ((length - HEADER_SIZE) & 0xFF, data[5]);   // Length LSB
+  EXPECT_EQ((length - HEADER_SIZE) >> 8, data[6]);     // Length MSB
+
+  EXPECT_EQ(Dynamixel::DX_INSTR_WRITE, data[7]);       // Instruction (write)
+  EXPECT_EQ((Dynamixel::DX_RAM_LED & 0xFF), data[8]);  // Address LSB
+  EXPECT_EQ((Dynamixel::DX_RAM_LED >> 8), data[9]);    // Address MSB
+
+  EXPECT_EQ(write_data[0], data[10]);   // Header[2]
+  EXPECT_EQ(write_data[1], data[11]);   // Reserved
+
+  uint16_t crc = Dynamixel::Manager::ComputeCRC(12, data);
+  EXPECT_EQ(crc & 0xFF, data[12]);
+  EXPECT_EQ(crc >> 8, data[13]);
+
+}
+
