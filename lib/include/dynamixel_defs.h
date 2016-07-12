@@ -25,7 +25,7 @@ enum Instruction {
 };
 
 enum Address {
-    BROADCAST               = 0xFE
+    ADDR_BROADCAST           = 0xFE
 };
 
 enum EepromAddress {

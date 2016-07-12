@@ -4,12 +4,9 @@
 
 #include "dynamixel.hpp"
 
-// The fixture for testing class Foo.
 class DynamixelTest : public ::testing::Test
 {
 protected:
-  // You can remove any or all of the following functions if its body
-  // is empty.
 
   DynamixelTest()
   {
@@ -29,10 +26,7 @@ TEST_F(DynamixelTest, HeaderSize) {
   EXPECT_EQ(9, PACKET_OVERHEAD);
 }
 
-
-
-
-TEST_F(DynamixelTest, FakeTest)
+TEST_F(DynamixelTest, BuildWritePacket)
 {
   uint8_t data[64];
   uint8_t length;
@@ -64,6 +58,5 @@ TEST_F(DynamixelTest, FakeTest)
   uint16_t crc = Dynamixel::Manager::ComputeCRC(12, data);
   EXPECT_EQ(crc & 0xFF, data[12]);
   EXPECT_EQ(crc >> 8, data[13]);
-
 }
 

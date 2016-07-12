@@ -6,6 +6,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 # Add project sources
 set(LIBDYNAMIXEL2_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/source/dynamixel.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/source/SerialInterface.cpp
 )
 
 # Create library

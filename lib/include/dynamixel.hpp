@@ -3,39 +3,21 @@
 
 #include <stdint.h>
 
+#include "SerialInterface.hpp"
+
 #include "dynamixel_defs.h"
 #include "dynamixel_proto.h"
 
 namespace Dynamixel
 {
 
-class SerialInterface
-{
-    virtual int Available() = 0;
-    virtual void Put(char* c) = 0;
-    virtual char Get() = 0;
-};
-
 class Manager
 {
 public:
 
-    enum ManagerState {
-        INIT,
-        IDLE,
-        SEND,
-        WAIT,
-        RECEIVE
-    };
-
     Manager(SerialInterface* si)
     {
         _si = si;
-        _state = IDLE;
-    }
-
-    bool IsBusy() {
-        return (_state == IDLE) ? false : true;
     }
 
     int Tick(uint32_t time_ms)
@@ -58,8 +40,6 @@ public:
 private:
     SerialInterface* _si;
     uint32_t _last_update;
-    ManagerState _state;
-
 };
 
 }
