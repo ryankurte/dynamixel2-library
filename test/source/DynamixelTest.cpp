@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 
+#include <iostream>
+
 #include "dynamixel.hpp"
 
 class DynamixelTest : public ::testing::Test
@@ -21,9 +23,25 @@ protected:
   Dynamixel::Manager dmx = Dynamixel::Manager(NULL);;
 };
 
-TEST_F(DynamixelTest, HeaderSize) {
+TEST_F(DynamixelTest, HeaderSize)
+{
   EXPECT_EQ(7, HEADER_SIZE);
   EXPECT_EQ(9, PACKET_OVERHEAD);
+}
+
+#define DXL_MAKEWORD(a, b)      ((unsigned short)(((unsigned char)(((unsigned long)(a)) & 0xff)) | ((unsigned short)((unsigned char)(((unsigned long)(b)) & 0xff))) << 8))
+#define DXL_MAKEDWORD(a, b)     ((unsigned int)(((unsigned short)(((unsigned long)(a)) & 0xffff)) | ((unsigned int)((unsigned short)(((unsigned long)(b)) & 0xffff))) << 16))
+#define DXL_LOWORD(l)           ((unsigned short)(((unsigned long)(l)) & 0xffff))
+#define DXL_HIWORD(l)           ((unsigned short)((((unsigned long)(l)) >> 16) & 0xffff))
+#define DXL_LOBYTE(w)           ((unsigned char)(((unsigned long)(w)) & 0xff))
+#define DXL_HIBYTE(w)           ((unsigned char)((((unsigned long)(w)) >> 8) & 0xff))
+
+void print_arr(char* name, int len, uint8_t *data) {
+    std::cout << name << ": " ;
+    for(int i=0; i<len; i++) {
+        std::cout << std::hex << (int)data[i] << " ";
+    }
+    std::cout << std::endl;
 }
 
 TEST_F(DynamixelTest, BuildWritePacket)
@@ -33,9 +51,9 @@ TEST_F(DynamixelTest, BuildWritePacket)
 
   int id = 1;
 
-  uint8_t write_data[2] = {0x00, 0x01};
+  uint8_t write_data[2] = {0x02, 0x00};
 
-  dmx.BuildWrite(1, Dynamixel::DX_RAM_LED, sizeof(write_data), write_data,
+  dmx.BuildWrite(id, Dynamixel::DX_RAM_LED, sizeof(write_data), write_data,
                  sizeof(data), &length, data);
 
   EXPECT_EQ(14, length);

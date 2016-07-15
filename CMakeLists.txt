@@ -28,7 +28,7 @@ include_directories(${PROJECT_SOURCE_DIR}/test/include)
 # Add project sources
 set(TEST_SOURCES
     ${PROJECT_SOURCE_DIR}/test/source/main.cpp
-    ${PROJECT_SOURCE_DIR}/test/source/dynamixeltest.cpp
+    ${PROJECT_SOURCE_DIR}/test/source/DynamixelTest.cpp
 )
 
 ##### Pre Build #####
