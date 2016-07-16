@@ -62,6 +62,25 @@ int Protocol::BuildPing(uint8_t id, uint8_t max_len, uint8_t* length, uint8_t* p
     return Protocol::BuildPacket(id, DX_INSTR_PING, 0, NULL, max_len, length, packet);
 }
 
+int Protocol::ParsePingResponse(uint8_t length, uint8_t* packet, uint8_t* error,
+                                uint8_t *id, uint16_t *model, uint8_t* firmware)
+{
+    uint8_t data[4];
+    uint8_t param_count;
+    int res;
+
+    res = Protocol::ParseStatusPacket(length, packet, id, error,
+                                      sizeof(data), &param_count, data);
+
+    if ((res >= 0) && (param_count == 3)) {
+        *model = (data[0] << 8) | data[1];
+        *firmware = data[2];
+    }
+
+    return res;
+}
+
+
 
 int Protocol::BuildWrite(uint8_t id, uint16_t addr, uint8_t data_count, uint8_t* data,
                          uint8_t max_len, uint8_t* length, uint8_t* packet)
@@ -118,7 +137,7 @@ int Protocol::BuildPacket(uint8_t id, uint8_t instruction, uint8_t param_count, 
     return 0;
 }
 
-int Protocol::ParseStatusPacket(uint8_t length, uint8_t* packet, uint8_t *id,
+int Protocol::ParseStatusPacket(uint8_t length, uint8_t* packet, uint8_t *id, uint8_t* error,
                                 uint8_t max_params, uint8_t *param_count, uint8_t *params)
 {
     // Check for header match
@@ -135,13 +154,26 @@ int Protocol::ParseStatusPacket(uint8_t length, uint8_t* packet, uint8_t *id,
     }
 
     // Fetch packet length
-    uint16_t packet_length = ((uint16_t)packet[PKT_INDEX_LENGTH_H] << 8) | packet[PKT_INDEX_LENGTH_L];
+    int packet_length = ((uint16_t)packet[PKT_INDEX_LENGTH_H] << 8) | packet[PKT_INDEX_LENGTH_L];
 
-    if(packet[PKT_INDEX_INSTRUCTION] != 0x55) {
-        return -3; // not a status packet
+    //TODO: check for packet length mismatch
+
+    if (packet[PKT_INDEX_INSTRUCTION] != 0x55) {
+        return -3; // TODO: error, not a status packet
     }
 
+    *id = packet[PKT_INDEX_ID];
+    *error = packet[HEADER_SIZE + 1];
 
+    *param_count = packet_length - CRC_SIZE - 2;
+
+    if (*param_count > max_params) {
+        return -4; // TODO: error too many params
+    }
+
+    for (int i = 0; i < *param_count; i++) {
+        params[i] = packet[HEADER_SIZE + 2 + i];
+    }
 
     //*instruction     = header->instruction;
 #if 0

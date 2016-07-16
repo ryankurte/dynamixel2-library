@@ -57,26 +57,31 @@ TEST_F(ProtocolTest, BuildWritePacket)
   EXPECT_EQ(crc & 0xFF, data[11]);
   EXPECT_EQ(crc >> 8, data[12]);
 }
+#include <stdio.h>
 
-TEST_F(ProtocolTest, ParseWritePacket)
+TEST_F(ProtocolTest, ParseStatusPacket)
 {
-  uint8_t data[64];
+  uint8_t packet[] = {0xff, 0xff, 0xfd, 0x00, 0x03, 0x07, 0x00, 0x55, 0x00, 0x11, 0x22, 0x33, 0x3b, 0xa8};
   uint8_t length;
 
-  int id = 1;
+  uint16_t crc = Protocol::ComputeCRC(sizeof(packet) - 2, packet);
 
   uint8_t write_data[2] = {0x02, 0x00};
 
-  Protocol::BuildWrite(id, DX_RAM_LED, sizeof(write_data), write_data,
-                       sizeof(data), &length, data);
-
-  uint8_t read_id;
+  uint8_t id;
+  uint8_t error;
   uint8_t param_count;
   uint8_t params[16];
 
-  int res = Protocol::ParseStatusPacket(length, data, &read_id, 16, &param_count, params);
+  int res = Protocol::ParseStatusPacket(sizeof(packet), packet, &id, &error, 16, &param_count, params);
 
   EXPECT_EQ(res, 0);
+  EXPECT_EQ(id, 0x03);
+  EXPECT_EQ(error, 0x00);
+  EXPECT_EQ(param_count, 3);
+  EXPECT_EQ(params[0], 0x11);
+  EXPECT_EQ(params[1], 0x22);
+  EXPECT_EQ(params[2], 0x33);
 
 }
 
