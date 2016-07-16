@@ -1,12 +1,10 @@
 
-#pragma once
-
-namespace Dynamixel
-{
+#ifndef DYNAMIXEL_DEFS_H
+#define DYNAMIXEL_DEFS_H
 
 enum ControlMode {
-    ControlModeWheel = 1,   //!< Used for wheel type motors, infinite rotation
-    ControlModeJoint = 2    //!< Used for joint type motors, servo angles controlled
+    DX_CTRL_MODE_WHEEL = 1,             //!< Used for wheel type motors, infinite rotation
+    DX_CTRL_MODE_JOINT = 2              //!< Used for joint type motors, servo angles controlled
 };
 
 enum Instruction {
@@ -25,7 +23,7 @@ enum Instruction {
 };
 
 enum Address {
-    ADDR_BROADCAST           = 0xFE
+    DX_ADDR_BROADCAST        = 0xFE
 };
 
 enum EepromAddress {
@@ -66,14 +64,14 @@ enum RamAddress {
 };
 
 enum ProtocolError {
-    ERRNUM_RESULT_FAIL      = 0x1,   //!< Failed to process the instruction packet.
-    ERRNUM_INSTRUCTION      = 0x2,   //!< Instruction error
-    ERRNUM_CRC              = 0x3,   //!< CRC check error
-    ERRNUM_DATA_RANGE       = 0x4,   //!< Data range error
-    ERRNUM_DATA_LENGTH      = 0x5,   //!< Data length error
-    ERRNUM_DATA_LIMIT       = 0x6,   //!< Data limit error
-    ERRNUM_ACCESS           = 0x7    //!< Access error
+    DX_ERRNUM_RESULT_FAIL      = 0x1,   //!< Failed to process the instruction packet.
+    DX_ERRNUM_INSTRUCTION      = 0x2,   //!< Instruction error
+    DX_ERRNUM_CRC              = 0x3,   //!< CRC check error
+    DX_ERRNUM_DATA_RANGE       = 0x4,   //!< Data range error
+    DX_ERRNUM_DATA_LENGTH      = 0x5,   //!< Data length error
+    DX_ERRNUM_DATA_LIMIT       = 0x6,   //!< Data limit error
+    DX_ERRNUM_ACCESS           = 0x7    //!< Access error
 };
 
-}
+#endif
 

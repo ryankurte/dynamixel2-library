@@ -25,41 +25,6 @@ struct dynamixel_header_s {
 
 typedef struct dynamixel_header_s dynamixel_header_t;
 
-#if 0
-struct dynamixel_instruction_ping_s {
-} __attribute((packed));
-
-struct dynamixel_instruction_s {
-    uint8_t instruction;
-    union {
-        struct dynamixel_instruction_ping_s ping;
-
-    };
-} __attribute((packed));
-
-struct dynamixel_status_ping_s {
-    uint16_t model;
-    uint8_t firmware;
-} __attribute((packed));
-
-struct dynamixel_status_s {
-    uint8_t error;
-    union {
-        struct dynamixel_status_ping_s ping;
-
-    };
-} __attribute((packed));
-
-struct dynamixel_message_s {
-    struct dynamixel_header_s;
-    union {
-        struct dynamixel_instruction_s instruction;
-        struct dynamixel_status_s status;
-    };
-    uint16_t crc;
-};
-#endif
-
 enum pkt_index_e {
     PKT_INDEX_HEADER0       = 0,
     PKT_INDEX_HEADER1       = 1,

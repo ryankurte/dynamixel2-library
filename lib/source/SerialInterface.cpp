@@ -1,5 +1,5 @@
 
-#include "SerialInterface.hpp"
+#include "dynamixel/SerialInterface.hpp"
 
 namespace Dynamixel
 {
