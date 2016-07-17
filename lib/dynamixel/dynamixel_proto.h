@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #define MAX_PARAMS      16
 #define HEADER_SIZE     (sizeof(struct dynamixel_header_s))
 #define CRC_SIZE        2
@@ -35,6 +37,47 @@ enum pkt_index_e {
     PKT_INDEX_LENGTH_H      = 6,
     PKT_INDEX_INSTRUCTION   = 7
 };
+
+int DXL_build_ping_req(uint8_t id, uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_parse_ping_resp(uint8_t length, uint8_t* packet, uint8_t* error,
+                        uint8_t *id, uint16_t *model, uint8_t* firmware);
+
+int DXL_build_read_req(uint8_t id, uint16_t read_addr, uint16_t read_len,
+                       uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_parse_read_resp(uint8_t length, uint8_t* packet, uint8_t* id, uint8_t* error,
+                        uint8_t max_len, uint8_t *read_len, uint8_t* read_data);
+
+int DXL_build_write_req(uint8_t id, uint16_t addr, uint8_t data_count, uint8_t* data,
+                      uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_parse_write_resp(uint8_t length, uint8_t* packet, uint8_t* id, uint8_t* error);
+
+int DXL_build_reg_write_req(uint8_t id, uint16_t addr, uint8_t data_count, uint8_t* data,
+                         uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_parse_reg_write_resp(uint8_t length, uint8_t* packet, uint8_t* id, uint8_t* error);
+
+int DXL_build_action_req(uint8_t id, uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_build_factory_rst_req(uint8_t id, uint8_t reset_mode, uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_build_reboot_req(uint8_t id, uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_build_sync_read_req(uint8_t id, uint16_t read_addr, uint16_t read_len, uint8_t num_ids, uint8_t* read_ids,
+                         uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_build_sync_write_req(uint8_t id, uint16_t write_addr, uint16_t write_len, uint8_t num_writes, uint8_t* write_ids,
+                          uint8_t* write_data, uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_build_pkt(uint8_t id, uint8_t instruction, uint8_t param_count, uint8_t *params,
+                uint8_t max_len, uint8_t* length, uint8_t* packet);
+
+int DXL_parse_status_pkt(uint8_t length, uint8_t* packet, uint8_t *id, uint8_t* error,
+                      uint8_t max_params, uint8_t *param_count, uint8_t *params);
+
+uint16_t DXL_compute_crc(uint16_t length, uint8_t *data);
 
 #ifdef __cplusplus
 }

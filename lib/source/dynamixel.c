@@ -8,19 +8,17 @@
  */
 
 
-#include "dynamixel/dynamixel.hpp"
+#include "dynamixel/dynamixel.h"
 
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "dynamixel/protocol.hpp"
+#include "dynamixel/dynamixel_proto.h"
 #include "dynamixel/dynamixel_defs.h"
 
 
-namespace Dynamixel
-{
+int DXL_tick(uint32_t time_ms) {
 
 
-
+    return 0;
 }
-
