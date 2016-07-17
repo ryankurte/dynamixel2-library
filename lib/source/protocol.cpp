@@ -57,13 +57,13 @@ uint16_t Protocol::ComputeCRC(uint16_t length, uint8_t *data)
     return crc_accum;
 }
 
-int Protocol::BuildPing(uint8_t id, uint8_t max_len, uint8_t* length, uint8_t* packet)
+int Protocol::BuildPingRequest(uint8_t id, uint8_t max_len, uint8_t* length, uint8_t* packet)
 {
     return Protocol::BuildPacket(id, DX_INSTR_PING, 0, NULL, max_len, length, packet);
 }
 
-int Protocol::ParsePingResponse(uint8_t length, uint8_t* packet, uint8_t* error,
-                                uint8_t *id, uint16_t *model, uint8_t* firmware)
+int Protocol::ParsePingResponse(uint8_t length, uint8_t* packet, uint8_t *id, uint8_t* error,
+                                 uint16_t *model, uint8_t* firmware)
 {
     uint8_t data[4];
     uint8_t param_count;
@@ -72,18 +72,44 @@ int Protocol::ParsePingResponse(uint8_t length, uint8_t* packet, uint8_t* error,
     res = Protocol::ParseStatusPacket(length, packet, id, error,
                                       sizeof(data), &param_count, data);
 
-    if ((res >= 0) && (param_count == 3)) {
-        *model = (data[0] << 8) | data[1];
-        *firmware = data[2];
+    if (res < 0) {
+        return res;
     }
 
-    return res;
+    if (param_count != 3) {
+        return -4; //TODO: response length mismatch
+    }
+
+    *model = (data[1] << 8) | data[0];
+    *firmware = data[2];
+
+    return 0;
 }
 
+int Protocol::BuildReadRequest(uint8_t id, uint16_t read_addr, uint16_t read_len,
+                               uint8_t max_len, uint8_t* length, uint8_t* packet)
+{
 
+    uint8_t data[4];
 
-int Protocol::BuildWrite(uint8_t id, uint16_t addr, uint8_t data_count, uint8_t* data,
-                         uint8_t max_len, uint8_t* length, uint8_t* packet)
+    // Pack data with reg address (LSB first)
+    data[0] = read_addr & 0xFF;
+    data[1] = (read_addr >> 8) & 0xFF;
+    data[2] = read_len & 0xFF;
+    data[3] = (read_len >> 8) & 0xFF;
+
+    return Protocol::BuildPacket(id, DX_INSTR_READ, sizeof(data), data, max_len, length, packet);
+}
+
+int Protocol::ParseReadResponse(uint8_t length, uint8_t* packet, uint8_t* id, uint8_t* error,
+                                uint8_t max_len, uint8_t *read_len, uint8_t* read_data)
+{
+    return Protocol::ParseStatusPacket(length, packet, id, error,
+                                       max_len, read_len, read_data);
+}
+
+int Protocol::BuildWriteRequest(uint8_t id, uint16_t addr, uint8_t data_count, uint8_t* data,
+                                uint8_t max_len, uint8_t* length, uint8_t* packet)
 {
 
     uint8_t packed_data[data_count + 2];
