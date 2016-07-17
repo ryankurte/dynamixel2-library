@@ -2,18 +2,18 @@
 #ifndef DYNAMIXEL_DEFS_H
 #define DYNAMIXEL_DEFS_H
 
-enum ControlMode {
+enum dxl_control_mode_e {
     DX_CTRL_MODE_WHEEL = 1,             //!< Used for wheel type motors, infinite rotation
     DX_CTRL_MODE_JOINT = 2              //!< Used for joint type motors, servo angles controlled
 };
 
-enum FactoryResetMode {
+enum dxl_factory_rst_mode_e {
     DX_FACTORY_RST_ALL          = 0xff,     //!< Reset all values
     DX_FACTORY_RST_NO_ID        = 0x01,     //!< Reset all values except ID
     DX_FACTORY_RST_NO_ID_BAUD   = 0x02      //!< Reset all values except ID and baud rate
 };
 
-enum Instruction {
+enum dxl_instruction_e {
     DX_INSTR_PING            = 0x01,
     DX_INSTR_READ            = 0x02,
     DX_INSTR_WRITE           = 0x03,
@@ -28,11 +28,11 @@ enum Instruction {
     DX_INSTR_BULK_WRITE      = 0x93
 };
 
-enum Address {
-    DX_ADDR_BROADCAST        = 0xFE
+enum dxl_id_e {
+    DX_ID_BROADCAST        = 0xFE
 };
 
-enum EepromAddress {
+enum dxl_eeprom_address_e {
     DX_EEP_MODEL_NO         = 0,
     DX_EEP_FIRMWARE_VER     = 2,
     DX_EEP_ID               = 3,
@@ -49,7 +49,7 @@ enum EepromAddress {
     DX_EEP_ALARM_SHUTDOWN   = 18
 };
 
-enum RamAddress {
+enum dxl_ram_address_e {
     DX_RAM_TORQUE_ENABLE    = 24,
     DX_RAM_LED              = 25,
     DX_RAM_D_GAIN           = 27,
@@ -69,7 +69,7 @@ enum RamAddress {
     DX_RAM_PUNCH            = 51
 };
 
-enum ProtocolError {
+enum dxl_protocol_error_e {
     DX_ERRNUM_RESULT_FAIL      = 0x1,   //!< Failed to process the instruction packet.
     DX_ERRNUM_INSTRUCTION      = 0x2,   //!< Instruction error
     DX_ERRNUM_CRC              = 0x3,   //!< CRC check error
@@ -77,6 +77,14 @@ enum ProtocolError {
     DX_ERRNUM_DATA_LENGTH      = 0x5,   //!< Data length error
     DX_ERRNUM_DATA_LIMIT       = 0x6,   //!< Data limit error
     DX_ERRNUM_ACCESS           = 0x7    //!< Access error
+};
+
+
+// DXL object for internal use
+struct dxl_s {
+    int open;                       //!< Indicates whether the device is open
+    struct dxl_driver_s* driver;    //!< Driver function object
+    void* driver_ctx;               //!< Driver context
 };
 
 #endif
