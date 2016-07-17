@@ -7,6 +7,12 @@ enum ControlMode {
     DX_CTRL_MODE_JOINT = 2              //!< Used for joint type motors, servo angles controlled
 };
 
+enum FactoryResetMode {
+    DX_FACTORY_RST_ALL          = 0xff,     //!< Reset all values
+    DX_FACTORY_RST_NO_ID        = 0x01,     //!< Reset all values except ID
+    DX_FACTORY_RST_NO_ID_BAUD   = 0x02      //!< Reset all values except ID and baud rate
+};
+
 enum Instruction {
     DX_INSTR_PING            = 0x01,
     DX_INSTR_READ            = 0x02,

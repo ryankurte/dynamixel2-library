@@ -63,7 +63,7 @@ int Protocol::BuildPingRequest(uint8_t id, uint8_t max_len, uint8_t* length, uin
 }
 
 int Protocol::ParsePingResponse(uint8_t length, uint8_t* packet, uint8_t *id, uint8_t* error,
-                                 uint16_t *model, uint8_t* firmware)
+                                uint16_t *model, uint8_t* firmware)
 {
     uint8_t data[4];
     uint8_t param_count;
@@ -123,6 +123,93 @@ int Protocol::BuildWriteRequest(uint8_t id, uint16_t addr, uint8_t data_count, u
     }
 
     return Protocol::BuildPacket(id, DX_INSTR_WRITE, data_count + 2, packed_data, max_len, length, packet);
+}
+
+int Protocol::ParseWriteResponse(uint8_t length, uint8_t* packet, uint8_t* id, uint8_t* error)
+{
+    uint8_t read_len;
+    return Protocol::ParseStatusPacket(length, packet, id, error,
+                                       0, &read_len, NULL);
+}
+
+int Protocol::BuildRegWriteRequest(uint8_t id, uint16_t addr, uint8_t data_count, uint8_t* data,
+                                   uint8_t max_len, uint8_t* length, uint8_t* packet)
+{
+
+    uint8_t packed_data[data_count + 2];
+
+    // Pack data with reg address (LSB first)
+    packed_data[0] = addr & 0xFF;
+    packed_data[1] = (addr >> 8) & 0xFF;
+
+    for (int i = 0; i < data_count; i++) {
+        packed_data[i + 2] = data[i];
+    }
+
+    return Protocol::BuildPacket(id, DX_INSTR_REG_WRITE, data_count + 2, packed_data, max_len, length, packet);
+}
+
+int Protocol::ParseRegWriteResponse(uint8_t length, uint8_t* packet, uint8_t* id, uint8_t* error)
+{
+    uint8_t read_len;
+    return Protocol::ParseStatusPacket(length, packet, id, error,
+                                       0, &read_len, NULL);
+}
+
+int Protocol::BuildActionRequest(uint8_t id, uint8_t max_len, uint8_t* length, uint8_t* packet)
+{
+    return Protocol::BuildPacket(id, DX_INSTR_ACTION, 0, NULL, max_len, length, packet);
+}
+
+int Protocol::BuildFactoryResetRequest(uint8_t id, uint8_t reset_mode, uint8_t max_len, uint8_t* length, uint8_t* packet)
+{
+    return Protocol::BuildPacket(id, DX_INSTR_FACTORY_RESET, 1, &reset_mode, max_len, length, packet);
+}
+
+int Protocol::BuildRebootRequest(uint8_t id, uint8_t max_len, uint8_t* length, uint8_t* packet)
+{
+    return Protocol::BuildPacket(id, DX_INSTR_REBOOT, 0, NULL, max_len, length, packet);
+}
+
+int Protocol::BuildSyncReadRequest(uint8_t id, uint16_t read_addr, uint16_t read_len, uint8_t num_ids, uint8_t* read_ids,
+                                   uint8_t max_len, uint8_t* length, uint8_t* packet)
+{
+
+    uint8_t data[num_ids + 4];
+
+    // Pack data with reg address (LSB first)
+    data[0] = read_addr & 0xFF;
+    data[1] = (read_addr >> 8) & 0xFF;
+    data[2] = read_len & 0xFF;
+    data[3] = (read_len >> 8) & 0xFF;
+
+    for (int i = 0; i < num_ids; i++) {
+        data[4 + i] = read_ids[i];
+    }
+
+    return Protocol::BuildPacket(id, DX_INSTR_SYNC_READ, sizeof(data), data, max_len, length, packet);
+}
+
+int Protocol::BuildSyncWriteRequest(uint8_t id, uint16_t write_addr, uint16_t write_len, uint8_t num_writes, uint8_t* write_ids,
+                                    uint8_t* write_data, uint8_t max_len, uint8_t* length, uint8_t* packet)
+{
+
+    uint8_t data[4 + num_writes * (write_len + 1)];
+
+    // Pack data with reg address (LSB first)
+    data[0] = write_addr & 0xFF;
+    data[1] = (write_addr >> 8) & 0xFF;
+    data[2] = write_len & 0xFF;
+    data[3] = (write_len >> 8) & 0xFF;
+
+    for (int i = 0; i < num_writes; i++) {
+        data[4 + (i * write_len)] = write_ids[i];
+        for (int j = 0; j < write_len; j++) {
+            data[4 + (i * write_len) + j] = write_data[(i * write_len) + j];
+        }
+    }
+
+    return Protocol::BuildPacket(id, DX_INSTR_SYNC_WRITE, sizeof(data), data, max_len, length, packet);
 }
 
 int Protocol::BuildPacket(uint8_t id, uint8_t instruction, uint8_t param_count, uint8_t *params,
