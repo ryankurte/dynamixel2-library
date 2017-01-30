@@ -3,6 +3,7 @@
  *
  * Based on http://support.robotis.com/en/product/dynamixel_pro/communication/instruction_status_packet.htm
  * http://support.robotis.com/en/techsupport_eng.htm#product/dynamixel2/communication/xl-320.htm
+ * http://support.robotis.com/en/product/dynamixel/xl-320/xl-320.htm
  * http://www.trossenrobotics.com/dynamixel-xl-320-robot-actuator
  *
  */
@@ -42,6 +43,7 @@ int DXL_init(struct dxl_s *dxl, struct dxl_driver_s *driver, void* driver_ctx)
 int DXL_ping(struct dxl_s *dxl, uint8_t id, uint16_t *model, uint8_t *firmware)
 {
 
+    return -1;
 }
 
 int DXL_set_id(struct dxl_s *dxl, uint8_t old_id, uint8_t new_id)
@@ -66,7 +68,7 @@ int DXL_set_baud(struct dxl_s *dxl, uint8_t id, uint32_t baud)
     case 1000000:
         baud_int = 3;
         break;
-    case 114200:
+    case 115200:
         baud_int = 2;
         break;
     case 57600:

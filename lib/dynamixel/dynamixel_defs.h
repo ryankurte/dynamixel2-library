@@ -79,6 +79,11 @@ enum dxl_protocol_error_e {
     DX_ERRNUM_ACCESS           = 0x7    //!< Access error
 };
 
+enum dxl_led_e {
+    DX_LED_RED = 0x1,
+    DX_LED_GRN = 0x2,
+    DX_LED_BLU = 0x4
+};
 
 // DXL object for internal use
 struct dxl_s {
